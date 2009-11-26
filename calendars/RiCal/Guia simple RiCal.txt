@@ -1,0 +1,109 @@
+/* Aca esta mas o menos lo que probe, es basico pero es un comienzo */
+
+require 'ri_cal'
+
+/* crear un calendario */
+
+calendario = RiCal.Calendar
+
+/* Crear eventos */
+
+evento1 = RiCal.Event
+evento2 = RiCal.Event
+
+/* Setear eventos */
+
+evento1.dtstart=("20090930T100000") /* inicio: YYYYMMDDTHHMMSS */
+evento1.dtend=("20090930T110000") /* fin igual al anterior */
+/* Las fechas pueden armarse de otra manera usando DateTime.parse("2/20/1962 14:47:39") por ej */
+
+evento1.description=("Evento 1")
+
+evento2.description=("Lol, otro evento")
+
+/* Agregar eventos a un calendario */
+
+calendario.add_subcomponent(evento1)
+calendario.add_subcomponent(evento2)
+
+/* Obtener lista de eventos de un calendario */
+
+calendario.events()
+
+/* Obtener un dato de un evento dentro de un calendario (ej: obtener descripcion del evento1)
+
+calendario.events()[0].descripcion()
+
+/* Exportar calendario en formato iCalendar */
+
+calendario.export() /* esto retorna un string */
+
+/* Suponiendo que se guardo el iCalendar en un archivo, como recuperarlo */
+
+calendario_recuperado = RiCal.parse_string(calendario_a_imporar) /* esto devuelve un array */
+calendario_nuevo = calendario_recuperado[0]
+/* Se puede directamente exportar a un archivo y parsear desde un archivo, ver la doc para eso */
+
+/* Notas
+
+Al parsear el string con el formato iCalendar, se obtiene un array de cosas. Dentro
+del iCalendar pueden haber mas de un calendario y otras cosas, por eso devuelve un array
+con todas esas cosas. En el ejemplo, solo habia un calendario, pero hay que tener ojo
+de no hacer cosas como "calendario_recuperado.events()" porque da error, obviamente porque
+es un array y no un objeto "RiCal.Calendar".
+
+Ideas para implementar esto:
+
+Utilizar archivos planos me parece medio feo y loco (aunque el mas facil), van a haber 
+muchos eventos y seria poco optimo. Por otro lado bajar y levantar grandes objetos puede ser 
+lento, aunque realizar busquedas por codigo no parece que resultara tan complicado. Sin 
+embargo no se me ocurre como evitar recorrer todo el calendario para ubicar un evento en 
+particular. Una alternativa podria ser hacer (o buscar) un parser que a partir de un archivo 
+en formato iCalendar, no de una lista de los evento en formato iCalendar. Con esto
+separamos todos los eventos y creamos un registro por cada uno en la base de datos. 
+Teniendo los datos de cada evento en registros separados, la busquedas se vuelven de texto
+en la base de datos, lo que es lento tambien (ya lo vimos en topicos 1). Mas complicado
+seria separar datos clave del evento, como fecha de inicio o patron de recurrencia, como
+para poder realizar la busqueda un poco mas agil, asi podriamos agregar indices a los
+campos como fecha de inicio, etc. Esto nos obligaria a tener exijir ciertos datos, que
+al fin y al cabo deberian serlo. No deberiamos permitir que los usuarios creen eventos
+sin inicio o fin al menos. Finalemente y mas complicado aun, podemos guardar los datos
+que vamos a usar para los eventos completamente por separado y rearmarlos por codigo.
+¿Simpleza? NO!!! seria un huevo pero quiza nos agilize muuucho las busquedas.
+Con respecto al calendario podemos guardar la informacion del calendario (si es necesario) 
+en un archivo o podriamos implementar un modelo maestro-detalle, donde el maestro tendria 
+registros por cada calendario (vacio, solo los datos), y detalle tendria el contenido de 
+los calendarios. Esto nos permitiria tener varios calendarios (util para cursivia).
+
+Las limitaciones de separar eventos residen en que se complicaria mas utilizar otras 
+estructuras que ofrece el iCalendar y RiCal como journals, todos, etc, (y otras limitaciones
+que no recuerdo ahora). 
+Mis sujerencia es la siguiente: hay que sacar andando rapido esto, usemos archivos planos 
+por ahora y bajemos y levantemos TODO el calendario. Asi nos facilita para renderizarlo
+en la interfaz.
+Mientras buscamos como agilizar las busquedas (estaria copado preguntarlo en la lista).
+
+*/
+
+/* No lo intente, pero para hacer eventos recurrentes hay que hacer una instancia de
+RiCal.RecurrentRule, setearle los datos y agregarselo al evento haciendo 
+evento1.add_rdate(RecurrenceRule) donde RecurrenceRule es el objeto instanciado 
+anteriormente. Lo groso es que se pueden agregar mas de una regla, lo que nos permitiria
+tener en un evento diferentes dias y horas para una materia, asi hariamos un evento por
+materia.
+
+Segun lo que entendi leyendo la documentacion es que en rdate() pones las fechas
+o las reglas de recurrencia que se cumplen para ese evento y en exrules pones como
+excepciones, aunque solo lo imagino por el nombre que tiene. Tambien esta exdates que
+seria el que vamos a usar mas seguido.
+
+Creo (no estoy seguro) que para predecir las proximas ocurrencias, tenes que usar
+OcurrenceList. No se como usarlo porque en la documentacion el metodo se llama "ruby_value()"
+y me vuela la cabeza porque como parametro en casi todos los demas metodos tiene
+"ruby_value" asi que no se. */
+
+/* PD: te hice un push a tu repo, ahora tenes una rama nueva, jeje */
+
+
+
+/* El archivo exportado_ical.txt es una exportacion de pruebas que hice a modo de ejemplo */

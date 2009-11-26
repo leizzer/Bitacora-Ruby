@@ -1,0 +1,3 @@
+RUNT is a gem for rails that helps the programmer to build
+reccurrent expresions, wich will generate a wide range of
+occurrences starting by a simple expresion.
